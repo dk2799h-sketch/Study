@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StudyPro AI Ultimate</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        glassBorder: 'rgba(255, 255, 255, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base & Animations */
+        body {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.3);
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(14,165,233,0.4); } 70% { box-shadow: 0 0 0 10px rgba(14,165,233,0); } 100% { box-shadow: 0 0 0 0 rgba(14,165,233,0); } }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+
+        /* Markdown Styles for AI */
+        .markdown-body pre { background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
+        .markdown-body code { font-family: monospace; color: #38bdf8; }
+        .markdown-body p { margin-bottom: 0.75rem; }
+        .markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+
+        /* Loader */
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #38bdf8; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 glass-panel">
+        <i class="fa-solid fa-graduation-cap text-5xl text-brand-400 mb-4 animate-bounce"></i>
+        <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-purple-500">StudyPro AI</h1>
+        <div class="mt-4 loader w-8 h-8"></div>
+    </div>
+
+    <!-- Auth View -->
+    <div id="auth-view" class="hidden min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div class="absolute w-96 h-96 bg-brand-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        
+        <div class="glass-panel p-8 md:p-12 rounded-3xl w-full max-w-md text-center relative z-10 animate-fade-in border-t border-l border-white/20 shadow-2xl">
+            <i class="fa-solid fa-graduation-cap text-6xl text-brand-400 mb-6 drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]"></i>
+            <h1 class="text-3xl font-bold mb-2">StudyPro AI <span class="text-xs bg-gradient-to-r from-brand-400 to-purple-500 text-white px-2 py-1 rounded-full align-top">ULTIMATE</span></h1>
+            <p class="text-slate-400 mb-8 text-sm">Your Personal AI Mentor & Exam Tracker</p>
+            
+            <button id="btn-google-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold py-3.5 px-6 rounded-2xl hover:bg-slate-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+            </button>
+            <p class="text-xs text-slate-500 mt-6">Secure login via Firebase Auth</p>
+        </div>
+    </div>
+
+    <div id="onboarding-view" class="hidden min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="glass-panel p-8 rounded-3xl w-full max-w-lg animate-fade-in">
+            <h2 class="text-2xl font-bold mb-6 text-center">Complete Your Profile</h2>
+            <form id="onboarding-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+                    <input type="text" id="ob-name" required class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="e.g. Aryan Sharma">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Target Exam</label>
+                    <select id="ob-exam" required class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors text-white appearance-none">
+                        <option value="" disabled selected>Select your goal</option>
+                        <option value="Class 10">Class 10 (CBSE/State)</option>
+                        <option value="Class 11">Class 11 (PCM/PCB)</option>
+                        <option value="Class 12">Class 12 (Board Exams)</option>
+                        <option value="JEE Main">JEE Main & Advanced</option>
+                        <option value="NEET">NEET UG</option>
+                        <option value="Government">Government Exams (SSC/UPSC/Bank)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold py-3.5 rounded-xl hover:from-brand-400 hover:to-brand-500 transition-all shadow-lg shadow-brand-500/30 mt-4">
+                    Start Learning <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-view" class="hidden flex h-screen w-full overflow-hidden">
+        
+        <!-- Sidebar (Desktop) -->
+        <aside class="hidden md:flex flex-col w-64 glass-panel border-r border-white/10 h-full z-20">
+            <div class="p-6 flex items-center gap-3">
+                <i class="fa-solid fa-graduation-cap text-3xl text-brand-400"></i>
+                <span class="font-bold text-xl tracking-wide">StudyPro</span>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+                <button onclick="navigate('dashboard')" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-left" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                </button>
+                <button onclick="navigate('syllabus')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-left" data-target="syllabus">
+                    <i class="fa-solid fa-book-open w-5"></i> Syllabus Tracker
+                </button>
+                <button onclick="navigate('ai-mentor')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-left relative" data-target="ai-mentor">
+                    <i class="fa-solid fa-robot w-5 text-brand-400"></i> AI Mentor
+                    <span class="absolute right-2 top-3 w-2 h-2 bg-brand-500 rounded-full animate-ping"></span>
+                </button>
+                <button onclick="navigate('pomodoro')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-left" data-target="pomodoro">
+                    <i class="fa-solid fa-stopwatch w-5"></i> Pomodoro
+                </button>
+                <button onclick="navigate('library')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all text-left" data-target="library">
+                    <i class="fa-solid fa-file-pdf w-5"></i> NCERT Library
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-white/10">
+                <div class="flex items-center gap-3 px-2">
+                    <div id="sidebar-dp" class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold">A</div>
+                    <div class="flex-1 overflow-hidden">
+                        <p id="sidebar-name" class="text-sm font-semibold truncate">User Name</p>
+                        <p id="sidebar-exam" class="text-xs text-brand-400 truncate">Target Exam</p>
+                    </div>
+                    <button onclick="logout()" class="text-slate-400 hover:text-red-400 transition-colors">
+                        <i class="fa-solid fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+            <!-- Mobile Header -->
+            <header class="md:hidden flex items-center justify-between p-4 glass-panel border-b border-white/10 z-20">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-brand-400"></i>
+                    <span class="font-bold text-lg">StudyPro</span>
+                </div>
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-2xl text-slate-300">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </header>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 glass-panel border-b border-white/10 z-30 p-4 space-y-2">
+                <!-- Repeated nav for mobile -->
+                <button onclick="navigate('dashboard'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 text-left"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</button>
+                <button onclick="navigate('syllabus'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 text-left"><i class="fa-solid fa-book-open w-5"></i> Syllabus Tracker</button>
+                <button onclick="navigate('ai-mentor'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 text-left"><i class="fa-solid fa-robot w-5"></i> AI Mentor</button>
+                <button onclick="navigate('pomodoro'); document.getElementById('mobile-menu').classList.add('hidden')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 text-left"><i class="fa-solid fa-stopwatch w-5"></i> Pomodoro</button>
+            </div>
+
+            <!-- Scrollable Pages Container -->
+            <div id="pages-container" class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-24 md:pb-8 relative z-10">
+                
+                <div id="page-dashboard" class="page-view block animate-fade-in space-y-6 max-w-7xl mx-auto">
+                    <!-- Top Stats Row -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                            <i class="fa-solid fa-fire text-orange-500 text-2xl mb-2"></i>
+                            <p class="text-slate-400 text-xs">Study Streak</p>
+                            <h3 id="stat-streak" class="text-2xl font-bold">12 Days</h3>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl flex flex-col justify-center items-center text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-brand-500/10"></div>
+                            <i class="fa-solid fa-bullseye text-brand-400 text-2xl mb-2 relative z-10"></i>
+                            <p class="text-slate-400 text-xs relative z-10">Today's Goal</p>
+                            <h3 class="text-2xl font-bold relative z-10">80%</h3>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                            <i class="fa-solid fa-clock text-purple-400 text-2xl mb-2"></i>
+                            <p class="text-slate-400 text-xs">Total Focus</p>
+                            <h3 id="stat-focus" class="text-2xl font-bold">45h 30m</h3>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                            <i class="fa-solid fa-trophy text-yellow-400 text-2xl mb-2"></i>
+                            <p class="text-slate-400 text-xs">Study XP</p>
+                            <h3 id="stat-xp" class="text-2xl font-bold">2,450</h3>
+                        </div>
+                    </div>
+
+                    <!-- Main Dashboard Content -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Left Column: Progress & Motivation -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Overall Progress -->
+                            <div class="glass-card p-6 rounded-3xl">
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-line text-brand-400"></i> Overall Syllabus Progress</h3>
+                                <div class="space-y-4" id="dashboard-progress-bars">
+                                    <!-- Populated by JS based on exam -->
+                                </div>
+                            </div>
+
+                            <!-- Motivation Widget -->
+                            <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                                <div class="absolute -right-10 -top-10 text-9xl opacity-5"><i class="fa-solid fa-quote-right"></i></div>
+                                <h3 class="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Motivation of the Day</h3>
+                                <p id="daily-quote" class="text-lg md:text-xl font-medium leading-relaxed italic text-brand-100">"Push yourself, because no one else is going to do it for you."</p>
+                                <button onclick="fetchNewQuote()" class="mt-4 text-xs text-brand-400 hover:text-brand-300"><i class="fa-solid fa-sync"></i> Get New Quote</button>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: AI Suggestion & Next Tasks -->
+                        <div class="space-y-6">
+                            <!-- AI Coach -->
+                            <div class="glass-card p-1 rounded-3xl bg-gradient-to-br from-brand-500/20 to-purple-500/20 border border-brand-500/30">
+                                <div class="bg-slate-900/80 rounded-[1.4rem] p-5 backdrop-blur-sm h-full">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center pulse-glow">
+                                            <i class="fa-solid fa-robot text-white"></i>
+                                        </div>
+                                        <h3 class="font-bold text-lg">AI Study Coach</h3>
+                                    </div>
+                                    <p class="text-sm text-slate-300 leading-relaxed mb-4" id="ai-coach-msg">
+                                        Analyzing your progress... Based on your recent activity, you should focus on revising <strong>Rotational Motion</strong> today.
+                                    </p>
+                                    <button onclick="navigate('ai-mentor')" class="w-full py-2 bg-brand-500/20 hover:bg-brand-500/40 text-brand-300 rounded-xl transition-colors text-sm font-medium">Chat with Mentor</button>
+                                </div>
+                            </div>
+
+                            <!-- Countdown -->
+                            <div class="glass-card p-5 rounded-3xl text-center">
+                                <h3 class="text-sm font-semibold text-slate-400 mb-3">Target Exam Countdown</h3>
+                                <div class="flex justify-center gap-3">
+                                    <div class="bg-slate-800 rounded-lg p-2 w-16"><span class="block text-xl font-bold text-white">142</span><span class="text-[10px] text-slate-400 uppercase">Days</span></div>
+                                    <div class="bg-slate-800 rounded-lg p-2 w-16"><span class="block text-xl font-bold text-white">10</span><span class="text-[10px] text-slate-400 uppercase">Hrs</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="page-syllabus" class="page-view hidden animate-fade-in max-w-5xl mx-auto space-y-6">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-3xl font-bold">Smart Syllabus Tracker</h2>
+                            <p class="text-slate-400 mt-1">Track every chapter, revision, and PYQ.</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm text-slate-400 block">Overall</span>
+                            <span class="text-2xl font-bold text-brand-400" id="syllabus-overall-percent">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Subjects Container -->
+                    <div id="syllabus-container" class="space-y-4">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+
+                <div id="page-ai-mentor" class="page-view hidden animate-fade-in h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)] flex flex-col max-w-5xl mx-auto">
+                    <div class="flex items-center justify-between mb-4 glass-panel p-4 rounded-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-brand-400 to-purple-500 flex items-center justify-center relative pulse-glow">
+                                <i class="fa-solid fa-robot text-white text-xl"></i>
+                                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full"></span>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-lg">StudyPro AI Teacher</h2>
+                                <p class="text-xs text-brand-300">Online • Ready to solve doubts (Hindi/English)</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 tooltip" title="Clear Chat" onclick="clearChat()"><i class="fa-solid fa-trash-alt text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Chat History -->
+                    <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-6 glass-panel rounded-2xl mb-4 scroll-smooth">
+                        <!-- Welcome Message -->
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded-full bg-brand-500 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-robot text-xs"></i></div>
+                            <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 max-w-[85%] shadow-sm">
+                                <p class="text-sm">Hello! I am your personal AI Study Mentor. You can ask me any doubt in Physics, Chemistry, Math, Biology, or General Studies. <br><br>Upload an image of a question, or type it below. I can explain step-by-step in Hindi and English.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="glass-panel p-3 rounded-3xl flex items-end gap-2 relative">
+                        <input type="file" id="ai-image-upload" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                        <button onclick="document.getElementById('ai-image-upload').click()" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 flex-shrink-0 transition-colors">
+                            <i class="fa-solid fa-image"></i>
+                        </button>
+                        <div class="flex-1 relative">
+                            <div id="image-preview-container" class="hidden absolute bottom-full left-0 mb-2 p-2 glass-panel rounded-xl">
+                                <img id="image-preview" src="" class="h-20 rounded shadow-md object-contain">
+                                <button onclick="clearImagePreview()" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs flex items-center justify-center"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                            <textarea id="ai-input" rows="1" class="w-full bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 resize-none max-h-32" placeholder="Ask a question or paste a problem..." oninput="this.style.height = '';this.style.height = Math.min(this.scrollHeight, 128) + 'px'"></textarea>
+                        </div>
+                        <button onclick="sendAIMessage()" id="btn-send-ai" class="w-10 h-10 rounded-full bg-brand-500 hover:bg-brand-600 flex items-center justify-center text-white flex-shrink-0 transition-all shadow-lg shadow-brand-500/30">
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="page-pomodoro" class="page-view hidden animate-fade-in max-w-4xl mx-auto flex flex-col items-center justify-center py-10">
+                    <h2 class="text-3xl font-bold mb-2">Focus Flow</h2>
+                    <p class="text-slate-400 mb-10 text-center">Stay productive with the Pomodoro technique.</p>
+
+                    <div class="glass-panel p-10 rounded-full w-72 h-72 flex flex-col items-center justify-center relative shadow-[0_0_50px_rgba(14,165,233,0.15)] border-4 border-slate-800">
+                        <!-- SVG Circle for Progress -->
+                        <svg class="absolute inset-0 w-full h-full transform -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="4"></circle>
+                            <circle id="timer-progress" cx="50" cy="50" r="46" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="289" stroke-dashoffset="0" class="transition-all duration-1000 ease-linear"></circle>
+                        </svg>
+                        
+                        <h3 id="timer-mode" class="text-sm font-semibold text-brand-400 uppercase tracking-widest mb-2 z-10">Focus Session</h3>
+                        <div id="timer-display" class="text-6xl font-bold tabular-nums tracking-tight z-10 font-mono">25:00</div>
+                    </div>
+
+                    <div class="flex gap-4 mt-10">
+                        <button onclick="toggleTimer()" id="btn-timer-toggle" class="w-16 h-16 rounded-full bg-brand-500 hover:bg-brand-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-brand-500/30 transition-transform hover:scale-105">
+                            <i class="fa-solid fa-play ml-1"></i>
+                        </button>
+                        <button onclick="resetTimer()" class="w-16 h-16 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 text-xl transition-colors">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-12 flex gap-3 glass-panel p-2 rounded-2xl">
+                        <button onclick="setTimerMode('pomodoro', 25)" class="px-4 py-2 rounded-xl text-sm font-medium bg-white/10 text-white">25m Focus</button>
+                        <button onclick="setTimerMode('shortBreak', 5)" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/5 text-slate-400">5m Break</button>
+                        <button onclick="setTimerMode('longBreak', 15)" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/5 text-slate-400">15m Break</button>
+                    </div>
+                </div>
+
+                <div id="page-library" class="page-view hidden animate-fade-in max-w-5xl mx-auto space-y-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">NCERT & Notes Library</h2>
+                        <button class="bg-brand-500 text-white px-4 py-2 rounded-xl text-sm font-medium"><i class="fa-solid fa-upload mr-2"></i>Upload File</button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Mock PDF Cards -->
+                        <div class="glass-card p-4 rounded-2xl flex flex-col items-center text-center cursor-pointer hover:bg-white/5">
+                            <i class="fa-solid fa-file-pdf text-red-400 text-4xl mb-3"></i>
+                            <h4 class="font-semibold text-sm">Physics NCERT Part 1</h4>
+                            <p class="text-xs text-slate-400 mt-1">Class 11</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl flex flex-col items-center text-center cursor-pointer hover:bg-white/5">
+                            <i class="fa-solid fa-file-pdf text-red-400 text-4xl mb-3"></i>
+                            <h4 class="font-semibold text-sm">Chemistry PYQs</h4>
+                            <p class="text-xs text-slate-400 mt-1">JEE Main 2019-23</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl flex flex-col items-center text-center cursor-pointer hover:bg-white/5">
+                            <i class="fa-solid fa-book-open text-brand-400 text-4xl mb-3"></i>
+                            <h4 class="font-semibold text-sm">Handwritten Notes</h4>
+                            <p class="text-xs text-slate-400 mt-1">Organic Chemistry</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-2xl border-dashed border-2 border-slate-700 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand-500">
+                            <i class="fa-solid fa-plus text-slate-500 text-2xl mb-2"></i>
+                            <h4 class="font-medium text-sm text-slate-400">Add New Folder</h4>
+                        </div>
+                    </div>
+                    <div class="p-6 glass-panel rounded-2xl mt-8 text-center text-slate-400">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl mb-3"></i>
+                        <p>Your library is stored securely in Firebase Storage.<br>Offline reading is available in the installed App.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State
+        let appState = {
+            currentUser: null,
+            userData: null,
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'studypro-ultimate-default',
+            activeTab: 'dashboard',
+            timer: {
+                timeLeft: 25 * 60,
+                interval: null,
+                isRunning: false,
+                mode: 'pomodoro', // pomodoro, shortBreak, longBreak
+                durations: { pomodoro: 25, shortBreak: 5, longBreak: 15 }
+            }
+        };
+
+        // Firebase Initialization
+        let app, db, auth;
+        try {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                // Fallback mock config for independent testing outside specific environment if needed, 
+                // though instructions imply it will be provided or we handle graciously.
+                apiKey: "mock-key", authDomain: "mock.firebaseapp.com", projectId: "mock-project"
+            };
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase init failed:", e);
+        }
+
+        // Base Syllabus Data Structure (Scalable)
+        const syllabusDataTemplate = {
+            "JEE Main": {
+                "Physics": [
+                    { id: "p1", name: "Units and Measurements", status: 0, pyq: false, rev: 0 },
+                    { id: "p2", name: "Kinematics", status: 0, pyq: false, rev: 0 },
+                    { id: "p3", name: "Laws of Motion", status: 0, pyq: false, rev: 0 },
+                    { id: "p4", name: "Work, Energy and Power", status: 0, pyq: false, rev: 0 },
+                    { id: "p5", name: "Rotational Motion", status: 0, pyq: false, rev: 0 }
+                ],
+                "Chemistry": [
+                    { id: "c1", name: "Some Basic Concepts", status: 0, pyq: false, rev: 0 },
+                    { id: "c2", name: "Structure of Atom", status: 0, pyq: false, rev: 0 },
+                    { id: "c3", name: "Chemical Bonding", status: 0, pyq: false, rev: 0 }
+                ],
+                "Mathematics": [
+                    { id: "m1", name: "Sets, Relations and Functions", status: 0, pyq: false, rev: 0 },
+                    { id: "m2", name: "Complex Numbers", status: 0, pyq: false, rev: 0 },
+                    { id: "m3", name: "Matrices and Determinants", status: 0, pyq: false, rev: 0 }
+                ]
+            },
+            "Class 10": {
+                "Science": [
+                    { id: "s1", name: "Chemical Reactions", status: 0, pyq: false, rev: 0 },
+                    { id: "s2", name: "Acids, Bases and Salts", status: 0, pyq: false, rev: 0 },
+                    { id: "s3", name: "Metals and Non-metals", status: 0, pyq: false, rev: 0 },
+                    { id: "s4", name: "Life Processes", status: 0, pyq: false, rev: 0 },
+                    { id: "s5", name: "Light - Reflection", status: 0, pyq: false, rev: 0 }
+                ],
+                "Mathematics": [
+                    { id: "10m1", name: "Real Numbers", status: 0, pyq: false, rev: 0 },
+                    { id: "10m2", name: "Polynomials", status: 0, pyq: false, rev: 0 },
+                    { id: "10m3", name: "Quadratic Equations", status: 0, pyq: false, rev: 0 }
+                ]
+            }
+        };
+
+        // DOM Elements
+        const elLoading = document.getElementById('loading-screen');
+        const elAuth = document.getElementById('auth-view');
+        const elOnboarding = document.getElementById('onboarding-view');
+        const elApp = document.getElementById('app-view');
+
+        const handleAuth = async () => {
+            if (!auth) return;
+            
+            // Listen for auth state changes
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    appState.currentUser = user;
+                    await checkUserProfile(user.uid);
+                } else {
+                    showView(elAuth);
+                }
+            });
+
+            // Login Button Click (Handles both Canvas environment and standard Google Auth)
+            document.getElementById('btn-google-login').addEventListener('click', async () => {
+                try {
+                    // Try Custom Token first (Canvas environment)
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        // Fallback to anonymous to ensure app works if popup fails in iframe
+                        await signInAnonymously(auth);
+                        // In a real standalone app, this would be: 
+                        // const provider = new GoogleAuthProvider();
+                        // await signInWithPopup(auth, provider);
+                    }
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    alert("Login failed. Please try again.");
+                }
+            });
+        };
+
+        const checkUserProfile = async (uid) => {
+            try {
+                // Rule 1 strictly applied: /artifacts/{appId}/users/{userId}/{collectionName}
+                const userRef = doc(db, 'artifacts', appState.appId, 'users', uid, 'profile', 'data');
+                const docSnap = await getDoc(userRef);
+
+                if (docSnap.exists()) {
+                    appState.userData = docSnap.data();
+                    initializeAppUI();
+                } else {
+                    showView(elOnboarding);
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                // Fallback to onboarding if DB fails
+                showView(elOnboarding); 
+            }
+        };
+
+        // Onboarding Submit
+        document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('ob-name').value;
+            const exam = document.getElementById('ob-exam').value;
+
+            // Generate template syllabus based on exam type (fallback to JEE if not found in mock template)
+            const startingSyllabus = syllabusDataTemplate[exam] ? 
+                JSON.parse(JSON.stringify(syllabusDataTemplate[exam])) : 
+                JSON.parse(JSON.stringify(syllabusDataTemplate["JEE Main"]));
+
+            const newUserData = {
+                name: name,
+                exam: exam,
+                xp: 0,
+                streak: 1,
+                lastLogin: new Date().toISOString(),
+                syllabus: startingSyllabus
+            };
+
+            try {
+                if(appState.currentUser) {
+                    const userRef = doc(db, 'artifacts', appState.appId, 'users', appState.currentUser.uid, 'profile', 'data');
+                    await setDoc(userRef, newUserData);
+                }
+                appState.userData = newUserData;
+                initializeAppUI();
+            } catch (error) {
+                console.error("Error saving profile:", error);
+                // Continue in memory if DB fails
+                appState.userData = newUserData;
+                initializeAppUI();
+            }
+        });
+
+        const showView = (element) => {
+            elLoading.classList.add('hidden');
+            elAuth.classList.add('hidden');
+            elOnboarding.classList.add('hidden');
+            elApp.classList.add('hidden');
+            element.classList.remove('hidden');
+        };
+
+        const initializeAppUI = () => {
+            showView(elApp);
+            
+            // Populate Sidebar
+            document.getElementById('sidebar-name').textContent = appState.userData.name;
+            document.getElementById('sidebar-exam').textContent = appState.userData.exam;
+            document.getElementById('sidebar-dp').textContent = appState.userData.name.charAt(0).toUpperCase();
+
+            // Populate Dashboard Stats
+            document.getElementById('stat-xp').textContent = appState.userData.xp || 0;
+            document.getElementById('stat-streak').textContent = (appState.userData.streak || 1) + " Days";
+
+            renderSyllabusTracker();
+            updateDashboardProgress();
+        };
+
+        // Navigation
+        window.navigate = (pageId) => {
+            // Update active state on buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.target === pageId) {
+                    btn.classList.add('bg-white/10', 'text-white');
+                    btn.classList.remove('text-slate-300');
+                } else {
+                    btn.classList.remove('bg-white/10', 'text-white');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+
+            // Show page
+            document.querySelectorAll('.page-view').forEach(page => page.classList.add('hidden'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            appState.activeTab = pageId;
+        };
+
+        window.logout = async () => {
+            if(auth) await signOut(auth);
+            window.location.reload();
+        };
+
+        const renderSyllabusTracker = () => {
+            const container = document.getElementById('syllabus-container');
+            container.innerHTML = '';
+            
+            const syllabus = appState.userData.syllabus;
+            if(!syllabus) return;
+
+            let totalChapters = 0;
+            let completedChapters = 0;
+
+            for (const [subject, chapters] of Object.entries(syllabus)) {
+                
+                let subjCompleted = chapters.filter(c => c.status === 2).length;
+                let subjTotal = chapters.length;
+                totalChapters += subjTotal;
+                completedChapters += subjCompleted;
+                let subjPercent = subjTotal === 0 ? 0 : Math.round((subjCompleted / subjTotal) * 100);
+
+                const subjectHtml = `
+                    <div class="glass-card rounded-2xl overflow-hidden mb-4 border border-white/5">
+                        <!-- Subject Header -->
+                        <div class="p-4 bg-slate-800/50 flex justify-between items-center cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                            <div>
+                                <h3 class="text-xl font-bold">${subject}</h3>
+                                <p class="text-xs text-slate-400 mt-1">${subjCompleted} / ${subjTotal} Chapters Completed</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden hidden md:block">
+                                    <div class="h-full bg-brand-500 rounded-full" style="width: ${subjPercent}%"></div>
+                                </div>
+                                <span class="font-bold text-brand-400 w-10 text-right">${subjPercent}%</span>
+                                <i class="fa-solid fa-chevron-down text-slate-500"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Chapters List (Toggleable) -->
+                        <div class="hidden border-t border-white/5 divide-y divide-white/5">
+                            ${chapters.map((chap, idx) => `
+                                <div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/5 transition-colors">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-sm md:text-base ${chap.status === 2 ? 'text-slate-400 line-through' : 'text-white'}">${chap.name}</h4>
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap gap-2 md:gap-4 items-center text-xs">
+                                        <!-- Status Select -->
+                                        <select class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-300 focus:outline-none focus:border-brand-500" 
+                                                onchange="updateChapter('${subject}', ${idx}, 'status', parseInt(this.value))">
+                                            <option value="0" ${chap.status === 0 ? 'selected' : ''}>Not Started</option>
+                                            <option value="1" ${chap.status === 1 ? 'selected' : ''}>Studying</option>
+                                            <option value="2" ${chap.status === 2 ? 'selected' : ''}>Completed</option>
+                                        </select>
+                                        
+                                        <!-- PYQ Checkbox -->
+                                        <label class="flex items-center gap-1 cursor-pointer bg-slate-800 px-2 py-1 rounded-lg border border-slate-700">
+                                            <input type="checkbox" class="accent-brand-500" ${chap.pyq ? 'checked' : ''} 
+                                                   onchange="updateChapter('${subject}', ${idx}, 'pyq', this.checked)">
+                                            PYQs
+                                        </label>
+                                        
+                                        <!-- Revision Counter -->
+                                        <div class="flex items-center bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                                            <button class="px-2 py-1 hover:bg-slate-700 text-slate-300" onclick="updateChapter('${subject}', ${idx}, 'rev', ${Math.max(0, chap.rev - 1)})">-</button>
+                                            <span class="px-2 py-1 text-xs border-x border-slate-700 min-w-[3rem] text-center">Rev: ${chap.rev}</span>
+                                            <button class="px-2 py-1 hover:bg-slate-700 text-slate-300" onclick="updateChapter('${subject}', ${idx}, 'rev', ${chap.rev + 1})">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', subjectHtml);
+            }
+
+            const overallPercent = totalChapters === 0 ? 0 : Math.round((completedChapters / totalChapters) * 100);
+            document.getElementById('syllabus-overall-percent').textContent = overallPercent + '%';
+        };
+
+        window.updateChapter = async (subject, chapIndex, field, value) => {
+            appState.userData.syllabus[subject][chapIndex][field] = value;
+            
+            // Re-render UI
+            renderSyllabusTracker();
+            updateDashboardProgress();
+
+            // Save to Firestore seamlessly
+            if (appState.currentUser && auth) {
+                try {
+                    const userRef = doc(db, 'artifacts', appState.appId, 'users', appState.currentUser.uid, 'profile', 'data');
+                    await updateDoc(userRef, { syllabus: appState.userData.syllabus });
+                } catch (e) { console.warn("Background save failed", e); }
+            }
+        };
+
+        const updateDashboardProgress = () => {
+            const container = document.getElementById('dashboard-progress-bars');
+            container.innerHTML = '';
+            
+            const syllabus = appState.userData.syllabus;
+            if(!syllabus) return;
+
+            for (const [subject, chapters] of Object.entries(syllabus)) {
+                let completed = chapters.filter(c => c.status === 2).length;
+                let total = chapters.length;
+                let percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-300">${subject}</span>
+                            <span class="font-medium">${percent}%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-brand-500 to-purple-500 rounded-full" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `);
+            }
+        };
+
+        const quotes = [
+            "Push yourself, because no one else is going to do it for you.",
+            "सफलता तब मिलती है जब आपके सपने आपके बहानों से बड़े हो जाते हैं।",
+            "The secret of getting ahead is getting started.",
+            "मेहनत इतनी खामोशी से करो कि सफलता शोर मचा दे।",
+            "Don't stop when you're tired. Stop when you're done."
+        ];
+        window.fetchNewQuote = () => {
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('daily-quote').textContent = `"${q}"`;
+        };
+        fetchNewQuote(); // Init
+
+        window.setTimerMode = (mode, minutes) => {
+            clearInterval(appState.timer.interval);
+            appState.timer.isRunning = false;
+            appState.timer.mode = mode;
+            appState.timer.timeLeft = minutes * 60;
+            updateTimerDisplay();
+            document.getElementById('btn-timer-toggle').innerHTML = '<i class="fa-solid fa-play ml-1"></i>';
+            
+            const modeText = mode === 'pomodoro' ? 'Focus Session' : (mode === 'shortBreak' ? 'Short Break' : 'Long Break');
+            document.getElementById('timer-mode').textContent = modeText;
+            
+            // Highlight buttons
+            const btns = document.getElementById('page-pomodoro').querySelectorAll('button.px-4');
+            btns.forEach(b => {
+                b.classList.remove('bg-white/10', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+            event.currentTarget.classList.add('bg-white/10', 'text-white');
+            event.currentTarget.classList.remove('text-slate-400');
+        };
+
+        window.toggleTimer = () => {
+            const btn = document.getElementById('btn-timer-toggle');
+            if (appState.timer.isRunning) {
+                clearInterval(appState.timer.interval);
+                appState.timer.isRunning = false;
+                btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i>';
+            } else {
+                appState.timer.isRunning = true;
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                appState.timer.interval = setInterval(() => {
+                    appState.timer.timeLeft--;
+                    updateTimerDisplay();
+                    if (appState.timer.timeLeft <= 0) {
+                        clearInterval(appState.timer.interval);
+                        appState.timer.isRunning = false;
+                        btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i>';
+                        alert("Session Complete!"); // Fallback to basic alert for simplicity in this artifact, though modal is better.
+                    }
+                }, 1000);
+            }
+        };
+
+        window.resetTimer = () => {
+            const minutes = appState.timer.durations[appState.timer.mode];
+            appState.timer.timeLeft = minutes * 60;
+            updateTimerDisplay();
+            if(!appState.timer.isRunning) clearInterval(appState.timer.interval);
+        };
+
+        const updateTimerDisplay = () => {
+            const m = Math.floor(appState.timer.timeLeft / 60);
+            const s = appState.timer.timeLeft % 60;
+            document.getElementById('timer-display').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            // Update SVG Circle
+            const total = appState.timer.durations[appState.timer.mode] * 60;
+            const progress = appState.timer.timeLeft / total;
+            const dashoffset = 289 - (289 * progress); // 2*pi*46 ~= 289
+            document.getElementById('timer-progress').style.strokeDashoffset = dashoffset;
+        };
+
+
+        let chatHistory = [];
+        let pendingImageBase64 = null;
+
+        window.handleImageSelect = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                pendingImageBase64 = e.target.result.split(',')[1]; // Get base64 data only
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImagePreview = () => {
+            pendingImageBase64 = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('ai-image-upload').value = '';
+        };
+
+        window.clearChat = () => {
+            chatHistory = [];
+            const chatContainer = document.getElementById('chat-history');
+            chatContainer.innerHTML = `
+                <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-brand-500 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-robot text-xs"></i></div>
+                    <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 max-w-[85%] shadow-sm">
+                        <p class="text-sm">Chat cleared. How can I help you today?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.sendAIMessage = async () => {
+            const inputEl = document.getElementById('ai-input');
+            const text = inputEl.value.trim();
+            
+            if (!text && !pendingImageBase64) return;
+
+            // Render User Message
+            const chatContainer = document.getElementById('chat-history');
+            let userMsgContent = text;
+            if(pendingImageBase64) {
+                userMsgContent = `<img src="data:image/jpeg;base64,${pendingImageBase64}" class="max-w-[200px] rounded-lg mb-2 border border-white/10">` + text;
+            }
+
+            chatContainer.insertAdjacentHTML('beforeend', `
+                <div class="flex gap-4 flex-row-reverse animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-purple-500 flex-shrink-0 flex items-center justify-center mt-1 font-bold text-xs">${appState.userData?.name.charAt(0) || 'U'}</div>
+                    <div class="bg-brand-600 p-4 rounded-2xl rounded-tr-none border border-brand-500/50 max-w-[85%] shadow-sm text-sm text-white">
+                        ${userMsgContent}
+                    </div>
+                </div>
+            `);
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Prepare Payload for Gemini
+            let parts = [];
+            if (text) parts.push({ text: text });
+            if (pendingImageBase64) {
+                parts.push({
+                    inlineData: {
+                        mimeType: "image/jpeg",
+                        data: pendingImageBase64
+                    }
+                });
+            }
+
+            // Clean up UI inputs
+            inputEl.value = '';
+            inputEl.style.height = '';
+            clearImagePreview();
+
+            // Add typing indicator
+            const typingId = 'typing-' + Date.now();
+            chatContainer.insertAdjacentHTML('beforeend', `
+                <div id="${typingId}" class="flex gap-4 animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-brand-500 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-robot text-xs"></i></div>
+                    <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 max-w-[85%] shadow-sm flex items-center gap-2">
+                        <div class="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                </div>
+            `);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Construct API Call (using gemini-3.1-flash as instructed)
+            try {
+                // In a true environment, apiKey is provided dynamically as ""
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${apiKey}`;
+                
+                const systemPrompt = "You are StudyPro AI, a world-class elite tutor for Indian students preparing for Class 10, 12, JEE, and NEET. Explain step-by-step. Use a friendly mix of Hindi and English (Hinglish) where it makes things clearer or more motivating. Format output nicely with line breaks. Do not use markdown headers (#), just bold text and bullet points.";
+
+                const payload = {
+                    contents: [
+                        ...chatHistory, // Pass history for context
+                        { role: "user", parts: parts }
+                    ],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                document.getElementById(typingId).remove();
+
+                if (result.candidates && result.candidates[0].content) {
+                    let aiText = result.candidates[0].content.parts[0].text;
+                    
+                    // Simple text to HTML formatting (bolding and lines)
+                    let formattedHtml = aiText
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-brand-300">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br>');
+
+                    // Render AI Response
+                    chatContainer.insertAdjacentHTML('beforeend', `
+                        <div class="flex gap-4 animate-fade-in">
+                            <div class="w-8 h-8 rounded-full bg-brand-500 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-robot text-xs"></i></div>
+                            <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 max-w-[85%] shadow-sm text-sm leading-relaxed markdown-body">
+                                ${formattedHtml}
+                            </div>
+                        </div>
+                    `);
+
+                    // Save to history
+                    chatHistory.push({ role: "user", parts: parts });
+                    chatHistory.push(result.candidates[0].content);
+
+                } else {
+                    throw new Error("Invalid response format");
+                }
+            } catch (error) {
+                console.error("AI Error:", error);
+                document.getElementById(typingId)?.remove();
+                chatContainer.insertAdjacentHTML('beforeend', `
+                    <div class="flex gap-4 animate-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-red-500 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-exclamation text-xs"></i></div>
+                        <div class="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-2xl rounded-tl-none max-w-[85%] text-sm">
+                            Sorry, I encountered a network error connecting to the AI. Please try again.
+                        </div>
+                    </div>
+                `);
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        // Handle Enter key in AI input
+        document.getElementById('ai-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAIMessage();
+            }
+        });
+
+        // Initialize App flow on load
+        window.addEventListener('load', () => {
+            // Start Auth listener
+            handleAuth();
+            
+            // Fail-safe timeout to remove loading screen if auth takes too long
+            setTimeout(() => {
+                if(!appState.currentUser && elLoading.classList.contains('hidden') === false) {
+                    showView(elAuth);
+                }
+            }, 3000);
+        });
+
+    </script>
+</body>
+</html>
